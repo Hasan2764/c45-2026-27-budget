@@ -447,7 +447,7 @@ def convert_df_to_excel(df):
                 )
 
         except Exception as e:
-        st.error(f"Error: {e}")
+            st.error(f"Error: {e}")
 
 else:
     st.info(
