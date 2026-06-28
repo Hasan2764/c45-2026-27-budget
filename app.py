@@ -225,12 +225,9 @@ if income_file and expense_file:
 
         st.sidebar.header("Filters")
 
-        months = [
-            "Jul-25","Aug-25","Sep-25","Oct-25","Nov-25","Dec-25",
-            "Jan-26","Feb-26","Mar-26","Apr-26","May-26","Jun-26",
-            "Jul-26","Aug-26","Sep-26","Oct-26","Nov-26","Dec-26",
-            "Jan-27","Feb-27","Mar-27","Apr-27","May-27","Jun-27"
-        ]
+        months = sorted(
+            df["Month"].dropna().astype(str).unique()
+        )
 
         month_filter = st.sidebar.multiselect(
             "Select Month",
