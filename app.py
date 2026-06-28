@@ -1,6 +1,6 @@
 # ============================================================
-# USMAN PUBLIC SCHOOL CAMPUS 45
-# BUDGET DASHBOARD 2026-27
+# USMAN PUBLIC SCHOOL SYSTEM
+# CAMPUS 45 - ANNUAL BUDGET FY 2026-27
 # ============================================================
 
 import streamlit as st
@@ -8,51 +8,45 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from io import BytesIO
+from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 
-# ------------------------------------------------------------
-# PAGE CONFIG
-# ------------------------------------------------------------
 st.set_page_config(
     page_title="Budget Dashboard 2026-27",
-    page_icon="📊",
     layout="wide"
 )
+
 st.markdown("""
 <style>
 
-[data-testid="stSidebar"] {
-    background-color: #1f4e78;
+[data-testid="stSidebar"]{
+    background-color:#1f4e78;
 }
 
-[data-testid="stSidebar"] * {
-    color: white;
+[data-testid="stSidebar"] *{
+    color:white;
 }
 
-div.stDownloadButton > button {
-    background-color: #1f4e78;
-    color: white;
-    border-radius: 8px;
-    border: none;
-    padding: 0.6rem 1rem;
+div.stDownloadButton > button{
+    background-color:#1f4e78;
+    color:white;
+    border:none;
+    border-radius:8px;
 }
 
-div.stDownloadButton > button:hover {
-    background-color: #17375e;
-    color: white;
+div.stDownloadButton > button:hover{
+    background-color:#17375e;
+    color:white;
 }
 
 </style>
 """, unsafe_allow_html=True)
+
 st.markdown(
     """
-    <div style='text-align:center;'>
-        <h1 style='margin-bottom:0px;'>
-            Usman Public School System
-        </h1>
-        <h2 style='margin-top:5px;margin-bottom:5px;'>
-            Campus 45
-        </h2>
-        <h2 style='margin-top:5px;color:#1f4e78;'>
+    <div style='text-align:center'>
+        <h1>Usman Public School System</h1>
+        <h2>Campus 45</h2>
+        <h2 style='color:#1f4e78'>
             Annual Budget FY 2026-27
         </h2>
     </div>
@@ -60,28 +54,30 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ------------------------------------------------------------
-# SIDEBAR
-# ------------------------------------------------------------
-st.sidebar.header("📂 Upload Files")
+st.sidebar.header("Upload Files")
 
 income_file = st.sidebar.file_uploader(
     "Upload Income File",
-    type=["xlsx", "xls", "csv"]
+    type=["xlsx", "xls"]
 )
 
 expense_file = st.sidebar.file_uploader(
     "Upload Expense File",
-    type=["xlsx", "xls", "csv"]
+    type=["xlsx", "xls"]
 )
 
-# ------------------------------------------------------------
-# FUNCTIONS
-# ------------------------------------------------------------
+
 def read_excel_file(file, actual_sheet, budget_sheet):
 
-    actual = pd.read_excel(file, sheet_name=actual_sheet)
-    budget = pd.read_excel(file, sheet_name=budget_sheet)
+    actual = pd.read_excel(
+        file,
+        sheet_name=actual_sheet
+    )
+
+    budget = pd.read_excel(
+        file,
+        sheet_name=budget_sheet
+    )
 
     actual.columns = actual.columns.str.strip()
     budget.columns = budget.columns.str.strip()
@@ -97,17 +93,22 @@ def clean_data(df, category):
     df.columns = df.columns.str.strip()
 
     if "Amount" not in df.columns:
-        numeric_cols = df.select_dtypes(include=np.number).columns
+        numeric_cols = df.select_dtypes(
+            include=np.number
+        ).columns
 
         if len(numeric_cols) > 0:
-            df = df.rename(columns={numeric_cols[-1]: "Amount"})
+            df = df.rename(
+                columns={
+                    numeric_cols[-1]: "Amount"
+                }
+            )
 
     if "Month" not in df.columns:
         df["Month"] = "Unknown"
 
     if "Particular" not in df.columns:
-        if len(df.columns) > 0:
-            df["Particular"] = df.iloc[:, 0]
+        df["Particular"] = df.iloc[:, 0]
 
     df["Category"] = category
     df["Amount"] = pd.to_numeric(
@@ -123,8 +124,8 @@ def convert_df_to_excel(df):
     output = BytesIO()
 
     with pd.ExcelWriter(
-            output,
-            engine="openpyxl"
+        output,
+        engine="openpyxl"
     ) as writer:
 
         df.to_excel(
@@ -137,11 +138,23 @@ def convert_df_to_excel(df):
         workbook = writer.book
         worksheet = writer.sheets["Profit & Loss"]
 
-        from openpyxl.styles import Font
-        from openpyxl.styles import PatternFill
-        from openpyxl.styles import Border
-        from openpyxl.styles import Side
-        from openpyxl.styles import Alignment
+        worksheet.merge_cells("A1:C1")
+        worksheet["A1"] = (
+            "Usman Public School System\n"
+            "Campus 45\n"
+            "Annual Budget FY 2026-27"
+        )
+
+        worksheet["A1"].font = Font(
+            size=16,
+            bold=True
+        )
+
+        worksheet["A1"].alignment = Alignment(
+            horizontal="center",
+            vertical="center",
+            wrap_text=True
+        )
 
         blue_fill = PatternFill(
             start_color="1F4E78",
@@ -151,35 +164,14 @@ def convert_df_to_excel(df):
 
         white_font = Font(
             color="FFFFFF",
-            bold=True,
-            size=12
-        )
-
-        title_font = Font(
-            bold=True,
-            size=16
+            bold=True
         )
 
         thin = Border(
-            left=Side(style='thin'),
-            right=Side(style='thin'),
-            top=Side(style='thin'),
-            bottom=Side(style='thin')
-        )
-
-        worksheet.merge_cells('A1:C1')
-
-        worksheet['A1'] = (
-            'Usman Public School System\n'
-            'Campus 45\n'
-            'Annual Budget FY 2026-27'
-        )
-
-        worksheet['A1'].font = title_font
-        worksheet['A1'].alignment = Alignment(
-            horizontal='center',
-            vertical='center',
-            wrap_text=True
+            left=Side(style="thin"),
+            right=Side(style="thin"),
+            top=Side(style="thin"),
+            bottom=Side(style="thin")
         )
 
         for cell in worksheet[4]:
@@ -188,26 +180,22 @@ def convert_df_to_excel(df):
             cell.border = thin
 
         for row in worksheet.iter_rows(
-                min_row=5,
-                max_row=worksheet.max_row):
-
+            min_row=5,
+            max_row=worksheet.max_row
+        ):
             for cell in row:
                 cell.border = thin
 
-        worksheet.column_dimensions['A'].width = 25
-        worksheet.column_dimensions['B'].width = 45
-        worksheet.column_dimensions['C'].width = 20
+        worksheet.column_dimensions["A"].width = 25
+        worksheet.column_dimensions["B"].width = 45
+        worksheet.column_dimensions["C"].width = 20
 
     output.seek(0)
     return output
-
-
-# ------------------------------------------------------------
-# PROCESS FILES
-# ------------------------------------------------------------
-if income_file and expense_file:
+    if income_file and expense_file:
 
     try:
+
         income_actual, income_budget = read_excel_file(
             income_file,
             "Actual FY 2025-26",
@@ -240,23 +228,25 @@ if income_file and expense_file:
             "Expense"
         )
 
-        df = pd.concat([
-            income_actual,
-            income_budget,
-            expense_actual,
-            expense_budget
-        ], ignore_index=True)
+        df = pd.concat(
+            [
+                income_actual,
+                income_budget,
+                expense_actual,
+                expense_budget
+            ],
+            ignore_index=True
+        )
 
-        # ----------------------------------------------------
-        # FILTERS
-        # ----------------------------------------------------
-        st.sidebar.header("🎯 Filters")
+        st.sidebar.header("Filters")
 
         months = [
-            "Jul-25","Aug-25","Sep-25","Oct-25","Nov-25","Dec-25",
-            "Jan-26","Feb-26","Mar-26","Apr-26","May-26","Jun-26",
-            "Jul-26","Aug-26","Sep-26","Oct-26","Nov-26","Dec-26",
-            "Jan-27","Feb-27","Mar-27","Apr-27","May-27","Jun-27"
+            "Jul-25","Aug-25","Sep-25","Oct-25",
+            "Nov-25","Dec-25","Jan-26","Feb-26",
+            "Mar-26","Apr-26","May-26","Jun-26",
+            "Jul-26","Aug-26","Sep-26","Oct-26",
+            "Nov-26","Dec-26","Jan-27","Feb-27",
+            "Mar-27","Apr-27","May-27","Jun-27"
         ]
 
         month_filter = st.sidebar.multiselect(
@@ -277,9 +267,6 @@ if income_file and expense_file:
             (df["Category"].isin(category_filter))
         ]
 
-        # ----------------------------------------------------
-        # BUDGET DATA ONLY FOR KPI
-        # ----------------------------------------------------
         budget_df = filtered_df[
             filtered_df["Data Type"]
             == "Budget FY 2026-27"
@@ -295,18 +282,11 @@ if income_file and expense_file:
 
         profit = total_income - total_expense
 
-        if total_income != 0:
-            profit_pct = (
-                    profit
-                    / total_income
-                    * 100
-            )
-        else:
-            profit_pct = 0
+        profit_pct = (
+            profit / total_income * 100
+            if total_income != 0 else 0
+        )
 
-        # ----------------------------------------------------
-        # KPI CARDS
-        # ----------------------------------------------------
         c1, c2, c3, c4 = st.columns(4)
 
         c1.metric(
@@ -330,11 +310,6 @@ if income_file and expense_file:
         )
 
         st.divider()
-
-        # ----------------------------------------------------
-        # CHARTS
-        # ----------------------------------------------------
-        st.subheader("📈 Financial Overview")
 
         chart1, chart2 = st.columns(2)
 
@@ -376,17 +351,13 @@ if income_file and expense_file:
             y="Amount",
             color="Category",
             markers=True,
-            title="Month-wise Budget Income vs Expense FY 2026-27"
+            title="Month-wise Income vs Expense"
         )
 
         chart2.plotly_chart(
             fig2,
             use_container_width=True
         )
-        # ----------------------------------------------------
-        # INCOME VS EXPENSE PIE
-        # ----------------------------------------------------
-        st.subheader("📊 Budget Composition")
 
         pie_df = (
             budget_df
@@ -399,67 +370,86 @@ if income_file and expense_file:
             pie_df,
             names="Category",
             values="Amount",
-            hole=0.5,
-            title="Income vs Expense Share"
+            hole=0.5
         )
 
         st.plotly_chart(
             fig3,
             use_container_width=True
         )
+
         st.subheader("Top Budget Heads")
 
-col1, col2 = st.columns(2)
+        col1, col2 = st.columns(2)
 
-income_top = (
-    budget_df[budget_df["Category"] == "Income"]
-    .groupby("Particular")["Amount"]
-    .sum()
-    .reset_index()
-    .sort_values("Amount", ascending=False)
-    .head(4)
-)
+        income_top = (
+            budget_df[
+                budget_df["Category"] == "Income"
+            ]
+            .groupby("Particular")["Amount"]
+            .sum()
+            .reset_index()
+            .sort_values(
+                "Amount",
+                ascending=False
+            )
+            .head(4)
+        )
 
-expense_top = (
-    budget_df[budget_df["Category"] == "Expense"]
-    .groupby("Particular")["Amount"]
-    .sum()
-    .reset_index()
-    .sort_values("Amount", ascending=False)
-    .head(4)
-)
+        expense_top = (
+            budget_df[
+                budget_df["Category"] == "Expense"
+            ]
+            .groupby("Particular")["Amount"]
+            .sum()
+            .reset_index()
+            .sort_values(
+                "Amount",
+                ascending=False
+            )
+            .head(4)
+        )
 
-with col1:
-    st.markdown("### Top 4 Income Heads")
-    st.dataframe(
-        income_top,
-        use_container_width=True,
-        hide_index=True
-    )
+        with col1:
+            st.subheader("Top 4 Income Heads")
+            st.dataframe(
+                income_top,
+                use_container_width=True,
+                hide_index=True
+            )
 
-with col2:
-    st.markdown("### Top 4 Expense Heads")
-    st.dataframe(
-        expense_top,
-        use_container_width=True,
-        hide_index=True
-    )
+        with col2:
+            st.subheader("Top 4 Expense Heads")
+            st.dataframe(
+                expense_top,
+                use_container_width=True,
+                hide_index=True
+            )
 
-        # ----------------------------------------------------
-        # PROFIT & LOSS STATEMENT
-        # ----------------------------------------------------
-        
+        pnl = (
+            budget_df
+            .groupby(
+                ["Category", "Particular"]
+            )["Amount"]
+            .sum()
+            .reset_index()
+        )
+
+        excel_file = convert_df_to_excel(
+            pnl
+        )
+
         st.download_button(
-            "⬇ Download Profit & Loss Statement",
+            "Download Profit & Loss Statement",
             data=excel_file,
             file_name="Profit_Loss_2026_27.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
     except Exception as e:
-        st.error(f"Error : {e}")
+        st.error(f"Error: {e}")
 
 else:
     st.info(
-        "Please upload both Income and Expense files to begin."
+        "Please upload both Income and Expense files."
     )
