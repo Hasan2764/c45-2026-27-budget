@@ -446,10 +446,10 @@ def convert_df_to_excel(df):
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
-        except Exception as e:
-            st.error(f"Error: {e}")
+            except Exception as e:
+                st.error(f"Error: {e}")
 
-else:
-    st.info(
-        "Please upload both Income and Expense files."
-    )
+        else:
+            st.info(
+                "Please upload both Income and Expense files."
+            )
