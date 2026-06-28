@@ -192,7 +192,7 @@ def convert_df_to_excel(df):
 
     output.seek(0)
     return output
-    if income_file and expense_file:
+if income_file and expense_file:
 
     try:
 
